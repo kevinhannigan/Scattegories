@@ -1,0 +1,12 @@
+{
+    "name": "scattegories-project",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+        "start:frontend": "cd frontend/scattegories && npm start",
+        "start:backend": "cd backend && npm start"
+    },
+    "devDependencies": {
+        "concurrently": "^7.6.0"
+    }
+}
