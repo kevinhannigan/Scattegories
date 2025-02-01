@@ -23,7 +23,7 @@ router.post("/create", async (req, res) => {
         code: gameCode,
         hostId: player.id, // Set hostId directly during creation
         numRounds, // Save the number of rounds
-        spicyMode, // Save spicy mode
+        spicyMode // Save spicy mode
       });
   
       // Associate the player with the game
@@ -108,7 +108,7 @@ router.get("/:gameCode/players", async (req, res) => {
  */
 router.post("/:gameCode/start", async (req, res) => {
     const { gameCode } = req.params;
-    const { playerId, numRounds, spicyMode } = req.body; // Include numRounds and spicyMode in the request body
+    const { playerId, numRounds, spicyMode, timer } = req.body; // Include numRounds and spicyMode in the request body
 
     try {
         // Fetch the game by its code
@@ -126,6 +126,7 @@ router.post("/:gameCode/start", async (req, res) => {
         // Update the game settings before starting
         game.numRounds = numRounds || game.numRounds; // Use the provided numRounds or keep the existing value
         game.spicyMode = spicyMode !== undefined ? spicyMode : game.spicyMode; // Use the provided spicyMode or keep the existing value
+        game.timer = timer
         game.started = true;
         await game.save();
 
@@ -331,6 +332,7 @@ router.get("/:gameCode/leaderboard", async (req, res) => {
         roundNumber: round.roundNumber, // Include round number
         letter: round.letter,
         categories: round.Categories,
+        timer: game.timer
       });
     } catch (error) {
       console.error("Error fetching current round:", error);
@@ -405,7 +407,9 @@ router.get("/:gameCode/leaderboard", async (req, res) => {
  */
 router.post("/:gameCode/start-next-round", async (req, res) => {
     const { gameCode } = req.params;
-    const { playerId } = req.body; // Ensure the playerId is sent in the request body
+    const playerId  = req.body.playerId; 
+    console.log(req.body.playerId)
+    console.log('Player Hosting' + playerId)// Ensure the playerId is sent in the request body
 
     try {
         // Fetch the game by its gameCode
@@ -414,6 +418,8 @@ router.post("/:gameCode/start-next-round", async (req, res) => {
         if (!game) {
             return res.status(404).json({ error: "Game not found." });
         }
+
+        console.log('Host of the Game in DB: ' + game.hostId)
 
         // Ensure only the host can start the next round
         if (game.hostId !== playerId) {
@@ -445,7 +451,7 @@ router.post("/:gameCode/start-next-round", async (req, res) => {
         const newRound = await Round.create({
             gameId: game.id,
             roundNumber: nextRoundNumber,
-            letter: randomLetter,
+            letter: randomLetter
         });
 
         // Fetch and assign 12 random categories to the new round
@@ -467,6 +473,7 @@ router.post("/:gameCode/start-next-round", async (req, res) => {
             roundNumber: newRound.roundNumber,
             letter: newRound.letter,
             categories,
+            timer: game.timer
         });
 
         res.status(200).json({

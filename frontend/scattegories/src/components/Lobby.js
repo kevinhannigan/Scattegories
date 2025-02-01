@@ -43,13 +43,15 @@ function Lobby() {
     try {
       const playerId = parseInt(sessionStorage.getItem("playerId"), 10);
       console.log('Lobby Player Id: ' + playerId)
+      console.log('Starting Game with Timer: ' + timer)
 
       // Trigger the backend to create the first round and initialize game
       const response = await fetch(`http://localhost:5000/api/game/${gameCode}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playerId, numRounds, spicyMode }),
+        body: JSON.stringify({ playerId, numRounds, spicyMode, timer, gameCode }),
       });
+      console.log("Game Starting with Data: " + JSON.stringify({ playerId, numRounds, spicyMode, timer }))
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -73,7 +75,8 @@ function Lobby() {
   };
   return (
     <div>
-      <h1>Lobby {timer}</h1>
+      <h1>Lobby</h1>
+      <p>({JSON.stringify(gameState)})</p>
       <h2>Game Code: {gameCode}</h2>
       <ul>
         {players.map((player) => (

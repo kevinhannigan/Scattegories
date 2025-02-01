@@ -23,6 +23,10 @@ const Game = sequelize.define("Game", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  timer: {
+    type: DataTypes.INTEGER,
+    defaultValue: 10,
+  },
 });
 
 module.exports = Game;

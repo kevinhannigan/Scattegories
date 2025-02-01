@@ -33,8 +33,8 @@ app.use((req, res, next) => {
 app.use("/api/game", gameRoutes);
 
 // Sync Sequelize models with the database
-// sequelize.sync({ force: true }).then(() => {
-//    console.log("Database synced!");
+//sequelize.sync({ force: true }).then(() => {
+//   console.log("Database synced!");
 // });
 
 // In-memory tracking for game player lists
@@ -94,7 +94,6 @@ io.on("connection", (socket) => {
 
   // Handle player joining a game screen
   socket.on("join_game", (gameCode) => {
-    console.log(`User joined game: ${gameCode}`);
     socket.join(gameCode);
   });
 

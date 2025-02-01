@@ -10,69 +10,75 @@ function GameScreen() {
   const [playerId, setPlayerId] = useState(sessionStorage.getItem("playerId"));
   const [categories, setCategories] = useState([]);
   const [letter, setLetter] = useState("H");
-  const [timer, setTimer] = useState(gameState.timer || 120);
+  const [timer, setTimer] = useState(null); // 🔧 Set as `null` initially to ensure correct updates
+  const [isRoundLoaded, setIsRoundLoaded] = useState(false);
   const answersRef = useRef({});
   const [submitted, setSubmitted] = useState(false);
   const timerRef = useRef(null);
 
-  // Load existing game state and timer
+  // ✅ Step 1: Fetch Current Round & Set Initial Timer
   useEffect(() => {
     const fetchCurrentRound = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/game/${gameCode}/current-round`);
+        console.log("Fetching new round:", JSON.stringify(response.data));
+
         updateGameState({
           roundNumber: response.data.roundNumber,
-          timer: response.data.timer || gameState.timer, // Use backend timer if available
+          timer: response.data.timer, // Use backend timer if available
         });
+
         setCategories(response.data.categories);
         setLetter(response.data.letter);
 
-        // Load saved timer from storage or use the gameState timer
+        // Ensure `isRoundLoaded` is set BEFORE setting the timer
+        setIsRoundLoaded(true);
+
+        // ✅ Separate `setTimer` to ensure it gets updated before countdown starts
         const savedTimer = localStorage.getItem(`gameTimer_${gameCode}`);
-        setTimer(savedTimer ? parseInt(savedTimer, 10) : response.data.timer || gameState.timer);
+        setTimer(savedTimer ? parseInt(savedTimer, 10) : response.data.timer || 60);
+
       } catch (error) {
         console.error("Error fetching current round:", error);
       }
     };
+    
     fetchCurrentRound();
-  }, [gameCode, updateGameState, gameState.timer]);
+  }, [gameCode]);
 
-  // Timer countdown with persistence
+  // ✅ Step 2: Timer countdown - Only starts when `isRoundLoaded` is true
   useEffect(() => {
+    if (!isRoundLoaded) return; // Ensure round is fully loaded before starting timer
+
     if (timerRef.current) {
-      clearInterval(timerRef.current); // Ensure no duplicate intervals
+      clearInterval(timerRef.current); // Avoid multiple intervals
     }
 
-    if (timer > 0) {
-      timerRef.current = setInterval(() => {
-        setTimer((prevTimer) => {
-          if (prevTimer <= 1) {
-            clearInterval(timerRef.current);
-            submitAnswers();
-            return 0;
-          }
-          const newTime = prevTimer - 1;
-          localStorage.setItem(`gameTimer_${gameCode}`, newTime); // Persist timer
-          return newTime;
-        });
-      }, 1000);
-    } else {
-      submitAnswers();
-    }
+    console.log(`Starting timer countdown: ${timer} seconds`);
+
+    timerRef.current = setInterval(() => {
+      setTimer((prevTimer) => {
+        if (prevTimer <= 1) {
+          clearInterval(timerRef.current);
+          submitAnswers();
+          localStorage.removeItem(`gameTimer_${gameCode}`)
+          return 0;
+        }
+        const newTime = prevTimer - 1;
+        localStorage.setItem(`gameTimer_${gameCode}`, newTime);
+        return newTime;
+      });
+    }, 1000);
 
     return () => clearInterval(timerRef.current); // Cleanup on unmount
-  }, [timer, gameCode]);
+  }, [isRoundLoaded, timer]); // 🔧 Updated dependency
 
-  const handleInputChange = (categoryId, value) => {
-    answersRef.current[categoryId] = value;
-  };
-
+  // ✅ Step 3: Handle Answer Submission
   const submitAnswers = async () => {
     if (submitted) return;
     setSubmitted(true);
 
     try {
-      const playerId = sessionStorage.getItem("playerId");
       await axios.post(`http://localhost:5000/api/game/${gameCode}/submit-answers`, {
         answers: answersRef.current,
         username: playerId,
@@ -88,17 +94,17 @@ function GameScreen() {
   return (
     <div>
       <h1>Game Screen</h1>
-      <h2>Player: {playerId}</h2>
+      <p>({JSON.stringify(gameState)})</p>
       <h2>Letter: {letter}</h2>
       <h2>Round: {gameState.roundNumber}</h2>
-      <h3>Time Remaining: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, "0")}</h3>
+      <h3>Time Remaining: {timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</h3>
 
       <form onSubmit={(e) => e.preventDefault()}>
         {categories.map((category) => (
           <div key={category.id}>
             <label>
               {category.name}:
-              <input type="text" onChange={(e) => handleInputChange(category.id, e.target.value)} />
+              <input type="text" onChange={(e) => (answersRef.current[category.id] = e.target.value)} />
             </label>
           </div>
         ))}

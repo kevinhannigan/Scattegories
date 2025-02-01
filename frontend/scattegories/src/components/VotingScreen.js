@@ -5,13 +5,14 @@ import { useGame } from "../context/GameContext";
 function VotingScreen() {
   const { gameCode } = useParams();
   const navigate = useNavigate();
-  const { socket, gameState } = useGame();
+  const { socket, gameState, updateGameState } = useGame();
   const [groupedAnswers, setGroupedAnswers] = useState({});
   const [votes, setVotes] = useState({});
 
   useEffect(() => {
     // Fetch all answers when the component mounts
     const playerId = sessionStorage.getItem("playerId");
+    updateGameState({timer: gameState.timer})
     console.log('Player Id Voting ' + playerId)
     const fetchAnswers = async () => {
       try {
@@ -101,7 +102,8 @@ function VotingScreen() {
   return (
     <div>
       <h1>Voting Screen</h1>
-      <h2>Rounds: {gameState.numRounds}</h2>
+      <p>({JSON.stringify(gameState)})</p>
+      <h2>Round: {gameState.roundNumber}</h2>
       {Object.entries(groupedAnswers).map(([categoryName, answers]) => (
         <div key={categoryName} style={{ marginBottom: "20px" }}>
           <h2>{categoryName}</h2>

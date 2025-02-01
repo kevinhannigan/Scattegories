@@ -49,9 +49,12 @@ function Leaderboard() {
   const startNextRound = async () => {
     try {
       const playerId = parseInt(sessionStorage.getItem("playerId"));
+      console.log('Host starting next round: ' + playerId)
       const response = await axios.post(`http://localhost:5000/api/game/${gameCode}/start-next-round`, {
-        playerId,
+        playerId: playerId
       });
+
+      console.log("Response from starting new round: " + JSON.stringify(response))
 
       updateGameState({
         roundNumber: response.data.roundNumber,
@@ -68,6 +71,7 @@ function Leaderboard() {
   return (
     <div>
       <h1>Leaderboard</h1>
+      <p>({JSON.stringify(gameState)})</p>
       <h2>
         Round {roundNumber} of {gameState.numRounds}
       </h2>
