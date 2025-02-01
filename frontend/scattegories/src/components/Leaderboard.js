@@ -71,7 +71,6 @@ function Leaderboard() {
   return (
     <div>
       <h1>Leaderboard</h1>
-      <p>({JSON.stringify(gameState)})</p>
       <h2>
         Round {roundNumber} of {gameState.numRounds}
       </h2>

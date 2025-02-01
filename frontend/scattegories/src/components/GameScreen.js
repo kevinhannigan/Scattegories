@@ -92,7 +92,6 @@ function GameScreen() {
   return (
     <div>
       <h1>Game Screen</h1>
-      <p>({JSON.stringify(gameState)})</p>
       <h2>Letter: {letter}</h2>
       <h2>Round: {gameState.roundNumber}</h2>
       <h3>Time Remaining: {timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</h3>

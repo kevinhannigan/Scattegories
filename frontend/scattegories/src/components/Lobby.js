@@ -76,7 +76,6 @@ function Lobby() {
   return (
     <div>
       <h1>Lobby</h1>
-      <p>({JSON.stringify(gameState)})</p>
       <h2>Game Code: {gameCode}</h2>
       <ul>
         {players.map((player) => (
