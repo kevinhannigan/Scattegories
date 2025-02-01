@@ -7,7 +7,7 @@ function Lobby() {
   const navigate = useNavigate();
   const { gameState, updateGameState, socket, emitEvent } = useGame();
   const [numRounds, setNumRounds] = useState(gameState.numRounds || 5); // Default to 5 rounds
-  const [timer, setTimer] = useState(gameState.timer || 120); // Default to 5 rounds
+  const [timer, setTimer] = useState(gameState.timer); // Default timer
   const [spicyMode, setSpicyMode] = useState(gameState.spicyMode || false); // Default to non-spicy mode
   const [players, setPlayers] = useState([]);
 
@@ -37,6 +37,7 @@ function Lobby() {
   const startGame = async () => {
     try {
       const playerId = parseInt(sessionStorage.getItem("playerId"), 10);
+      console.log('Lobby Player Id: ' +playerId)
 
       // Trigger the backend to create the first round and initialize game
       const response = await fetch(`http://localhost:5000/api/game/${gameCode}/start`, {
@@ -51,8 +52,10 @@ function Lobby() {
         return;
       }
 
+
+
       // Update game state and emit event
-      updateGameState({ numRounds, spicyMode, timer });
+      updateGameState({ numRounds, spicyMode, timer:timer });
       emitEvent("game_started", { gameCode });
       navigate(`/game/${gameCode}`); // Navigate to the GameScreen
     } catch (error) {
@@ -60,10 +63,17 @@ function Lobby() {
     }
   };
 
+  const handleChange = (e) => {
+    const newValue = Number(e.target.value); // Ensure it's a number
+    setTimer(newValue);
+    updateGameState({timer: newValue})
+    console.log("Timer: " + newValue)
+  };
+
 
   return (
     <div>
-      <h1>Lobby</h1>
+      <h1>Lobby {timer}</h1>
       <h2>Game Code: {gameCode}</h2>
       <ul>
         {players.map((player) => (
@@ -83,7 +93,8 @@ function Lobby() {
             />
           </label>
           <label htmlFor="timeSelect">Select Time:</label>
-          <select id="timeSelect" value={timer} onChange={(e) => setTimer(Number(e.target.value))}>
+          <select id="timeSelect" value={timer} onChange={handleChange}>
+          <option value={10}>10 seconds</option>
             <option value={60}>60 seconds</option>
             <option value={120}>120 seconds</option>
             <option value={180}>180 seconds</option>

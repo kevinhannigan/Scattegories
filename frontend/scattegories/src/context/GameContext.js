@@ -18,7 +18,7 @@ export const GameProvider = ({ children }) => {
     numRounds: 5,
     spicyMode: false,
     isHost: false,
-    timer: 180
+    timer: 10
   });
 
   const socketRef = useRef(null);

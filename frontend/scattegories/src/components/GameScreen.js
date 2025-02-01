@@ -7,7 +7,7 @@ function GameScreen() {
   const { gameCode } = useParams();
   const { gameState, updateGameState, socket } = useGame();
   const navigate = useNavigate();
-
+  const [playerId, setPlayerId] = useState();
   const [categories, setCategories] = useState([]);
   const [letter, setLetters] = useState("H")
   const [timer, setTimer] =  useState(gameState.timer || 120)
@@ -27,8 +27,8 @@ function GameScreen() {
         console.error("Error fetching current round:", error);
       }
     };
-
     fetchCurrentRound();
+    setPlayerId(sessionStorage.getItem("playerId"))
   }, [gameCode, updateGameState]);
 
   useEffect(() => {
@@ -71,6 +71,7 @@ function GameScreen() {
   return (
     <div>
       <h1>Game Screen</h1>
+      <h2>Player: {playerId}</h2>
       <h2>Letter: {letter}</h2>
       <h2>Round: {gameState.roundNumber}</h2>
       <h3>Time Remaining: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, "0")}</h3>
@@ -87,9 +88,6 @@ function GameScreen() {
             </label>
           </div>
         ))}
-        <button type="button" disabled={submitted || timer === 0} onClick={submitAnswers}>
-          Submit
-        </button>
       </form>
     </div>
   );

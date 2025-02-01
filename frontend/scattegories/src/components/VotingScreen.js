@@ -11,6 +11,8 @@ function VotingScreen() {
 
   useEffect(() => {
     // Fetch all answers when the component mounts
+    const playerId = sessionStorage.getItem("playerId");
+    console.log('Player Id Voting ' + playerId)
     const fetchAnswers = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/game/${gameCode}/answers`);
@@ -99,6 +101,7 @@ function VotingScreen() {
   return (
     <div>
       <h1>Voting Screen</h1>
+      <h2>Rounds: {gameState.numRounds}</h2>
       {Object.entries(groupedAnswers).map(([categoryName, answers]) => (
         <div key={categoryName} style={{ marginBottom: "20px" }}>
           <h2>{categoryName}</h2>
