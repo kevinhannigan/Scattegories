@@ -104,9 +104,12 @@ io.on("connection", (socket) => {
   });
 
   // Handle transition to leaderboard
-  socket.on("move_to_leaderboard", (gameCode) => {
-    console.log(`Moving to leaderboard for game: ${gameCode}`);
+  socket.on("move_to_leaderboard", async ({ gameCode }) => {
+    console.log(`Moving to Leaderboard for game: ${gameCode}`);
+
+    // Emit the game start event to all players in the game room
     io.to(gameCode).emit("move_to_leaderboard");
+
   });
 
   // Handle completion of voting

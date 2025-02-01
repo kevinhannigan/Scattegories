@@ -5,14 +5,14 @@ import { useGame } from "../context/GameContext";
 function VotingScreen() {
   const { gameCode } = useParams();
   const navigate = useNavigate();
-  const { socket, gameState, updateGameState } = useGame();
+  const { socket, gameState, updateGameState, emitEvent } = useGame();
   const [groupedAnswers, setGroupedAnswers] = useState({});
   const [votes, setVotes] = useState({});
 
   useEffect(() => {
     // Fetch all answers when the component mounts
     const playerId = sessionStorage.getItem("playerId");
-    updateGameState({timer: gameState.timer})
+    updateGameState({ timer: gameState.timer })
     console.log('Player Id Voting ' + playerId)
     const fetchAnswers = async () => {
       try {
@@ -80,10 +80,8 @@ function VotingScreen() {
       });
 
       // Notify all players to move to the leaderboard
-      if (socket) {
-        socket.emit("move_to_leaderboard", { gameCode });
-        navigate(`/leaderboard/${gameCode}`); // Navigate to the Leaderboard
-      }
+      emitEvent("move_to_leaderboard", { gameCode });
+      navigate(`/leaderboard/${gameCode}`); // Navigate to the Leaderboard
     } catch (error) {
       console.error("Error submitting votes:", error);
     }

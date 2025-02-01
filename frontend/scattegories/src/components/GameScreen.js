@@ -46,7 +46,6 @@ function GameScreen() {
     fetchCurrentRound();
   }, [gameCode]);
 
-  // ✅ Step 2: Timer countdown - Only starts when `isRoundLoaded` is true
   useEffect(() => {
     if (!isRoundLoaded) return; // Ensure round is fully loaded before starting timer
 
@@ -71,9 +70,8 @@ function GameScreen() {
     }, 1000);
 
     return () => clearInterval(timerRef.current); // Cleanup on unmount
-  }, [isRoundLoaded, timer]); // 🔧 Updated dependency
+  }, [isRoundLoaded, timer]); // 
 
-  // ✅ Step 3: Handle Answer Submission
   const submitAnswers = async () => {
     if (submitted) return;
     setSubmitted(true);
