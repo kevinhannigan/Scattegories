@@ -14,16 +14,14 @@ function LandingPage() {
       const response = await axios.post("http://localhost:5000/api/game/create", { username });
       const { gameCode, playerId } = response.data;
 
-      // Update GameContext state for the host
       updateGameState({ gameCode, isHost: true, roundNumber: 1 });
 
-      // Emit join lobby event for real-time updates
       emitEvent("join_lobby", gameCode);
 
-      // Store playerId for identification in other components
+      // Store playerId and gameCode persistently
       sessionStorage.setItem("playerId", playerId);
+      localStorage.setItem("gameCode", gameCode);
 
-      // Navigate to the lobby
       navigate(`/lobby/${gameCode}`);
     } catch (error) {
       console.error("Error creating game:", error);
@@ -42,16 +40,14 @@ function LandingPage() {
         return;
       }
 
-      // Update GameContext state for the player
       updateGameState({ gameCode, isHost: false });
 
-      // Emit join lobby event for real-time updates
       emitEvent("join_lobby", gameCode);
 
-      // Store playerId for identification in other components
+      // Store playerId and gameCode persistently
       sessionStorage.setItem("playerId", playerId);
+      localStorage.setItem("gameCode", gameCode);
 
-      // Navigate to the lobby
       navigate(`/lobby/${gameCode}`);
     } catch (error) {
       console.error("Error joining game:", error);

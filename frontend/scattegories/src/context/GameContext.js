@@ -12,23 +12,33 @@ export const useGame = () => {
 };
 
 export const GameProvider = ({ children }) => {
-  const [gameState, setGameState] = useState({
-    gameCode: null,
-    roundNumber: 1,
-    numRounds: 5,
-    spicyMode: false,
-    isHost: false,
-    timer: 10
+  const [gameState, setGameState] = useState(() => {
+    // Load from storage if available
+    const savedState = localStorage.getItem("gameState");
+    return savedState
+      ? JSON.parse(savedState)
+      : {
+        gameCode: null,
+        roundNumber: 1,
+        numRounds: 5,
+        spicyMode: false,
+        isHost: false,
+        timer: 10,
+      };
   });
 
   const socketRef = useRef(null);
+
+  useEffect(() => {
+    // Save game state in localStorage whenever it changes
+    localStorage.setItem("gameState", JSON.stringify(gameState));
+  }, [gameState]);
 
   useEffect(() => {
     if (!socketRef.current) {
       const socket = io("http://localhost:5000", { transports: ["websocket"] });
       socketRef.current = socket;
 
-      // Listeners for global events
       socket.on("player_joined", ({ gameCode }) => {
         console.log(`Player joined lobby for game: ${gameCode}`);
       });
@@ -45,13 +55,16 @@ export const GameProvider = ({ children }) => {
         console.log("Starting next round...");
       });
 
-      // Clean up on unmount
       return () => socket.disconnect();
     }
   }, []);
 
   const updateGameState = (updates) => {
-    setGameState((prevState) => ({ ...prevState, ...updates }));
+    setGameState((prevState) => {
+      const newState = { ...prevState, ...updates };
+      localStorage.setItem("gameState", JSON.stringify(newState));
+      return newState;
+    });
   };
 
   const emitEvent = (event, payload) => {

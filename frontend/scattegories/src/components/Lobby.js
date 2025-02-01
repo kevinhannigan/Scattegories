@@ -12,6 +12,11 @@ function Lobby() {
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
+    // Restore game state from localStorage
+    const savedGameCode = localStorage.getItem("gameCode");
+    if (savedGameCode) {
+      updateGameState({ gameCode: savedGameCode });
+    }
     // Emit 'join_lobby' event once when the component mounts
     if (socket && gameCode) {
       socket.emit("join_lobby", gameCode);
@@ -37,7 +42,7 @@ function Lobby() {
   const startGame = async () => {
     try {
       const playerId = parseInt(sessionStorage.getItem("playerId"), 10);
-      console.log('Lobby Player Id: ' +playerId)
+      console.log('Lobby Player Id: ' + playerId)
 
       // Trigger the backend to create the first round and initialize game
       const response = await fetch(`http://localhost:5000/api/game/${gameCode}/start`, {
@@ -51,11 +56,8 @@ function Lobby() {
         console.error("Error starting game:", errorData.error);
         return;
       }
-
-
-
       // Update game state and emit event
-      updateGameState({ numRounds, spicyMode, timer:timer });
+      updateGameState({ numRounds, spicyMode, timer: timer });
       emitEvent("game_started", { gameCode });
       navigate(`/game/${gameCode}`); // Navigate to the GameScreen
     } catch (error) {
@@ -66,11 +68,9 @@ function Lobby() {
   const handleChange = (e) => {
     const newValue = Number(e.target.value); // Ensure it's a number
     setTimer(newValue);
-    updateGameState({timer: newValue})
+    updateGameState({ timer: newValue })
     console.log("Timer: " + newValue)
   };
-
-
   return (
     <div>
       <h1>Lobby {timer}</h1>
@@ -94,7 +94,7 @@ function Lobby() {
           </label>
           <label htmlFor="timeSelect">Select Time:</label>
           <select id="timeSelect" value={timer} onChange={handleChange}>
-          <option value={10}>10 seconds</option>
+            <option value={10}>10 seconds</option>
             <option value={60}>60 seconds</option>
             <option value={120}>120 seconds</option>
             <option value={180}>180 seconds</option>

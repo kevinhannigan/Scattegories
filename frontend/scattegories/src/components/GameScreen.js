@@ -7,51 +7,68 @@ function GameScreen() {
   const { gameCode } = useParams();
   const { gameState, updateGameState, socket } = useGame();
   const navigate = useNavigate();
-  const [playerId, setPlayerId] = useState();
+  const [playerId, setPlayerId] = useState(sessionStorage.getItem("playerId"));
   const [categories, setCategories] = useState([]);
-  const [letter, setLetters] = useState("H")
-  const [timer, setTimer] =  useState(gameState.timer || 120)
-  const answersRef = useRef({}); // Store answers without risking stale state
+  const [letter, setLetter] = useState("H");
+  const [timer, setTimer] = useState(gameState.timer || 120);
+  const answersRef = useRef({});
   const [submitted, setSubmitted] = useState(false);
+  const timerRef = useRef(null);
 
+  // Load existing game state and timer
   useEffect(() => {
     const fetchCurrentRound = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/game/${gameCode}/current-round`);
         updateGameState({
           roundNumber: response.data.roundNumber,
+          timer: response.data.timer || gameState.timer, // Use backend timer if available
         });
         setCategories(response.data.categories);
-        setLetters(response.data.letter);
+        setLetter(response.data.letter);
+
+        // Load saved timer from storage or use the gameState timer
+        const savedTimer = localStorage.getItem(`gameTimer_${gameCode}`);
+        setTimer(savedTimer ? parseInt(savedTimer, 10) : response.data.timer || gameState.timer);
       } catch (error) {
         console.error("Error fetching current round:", error);
       }
     };
     fetchCurrentRound();
-    setPlayerId(sessionStorage.getItem("playerId"))
-  }, [gameCode, updateGameState]);
+  }, [gameCode, updateGameState, gameState.timer]);
 
+  // Timer countdown with persistence
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev === 1) {
-          clearInterval(interval);
-          submitAnswers(); // Auto-submit answers when time runs out
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (timerRef.current) {
+      clearInterval(timerRef.current); // Ensure no duplicate intervals
+    }
 
-    return () => clearInterval(interval); // Cleanup timer on unmount
-  }, []);
+    if (timer > 0) {
+      timerRef.current = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(timerRef.current);
+            submitAnswers();
+            return 0;
+          }
+          const newTime = prevTimer - 1;
+          localStorage.setItem(`gameTimer_${gameCode}`, newTime); // Persist timer
+          return newTime;
+        });
+      }, 1000);
+    } else {
+      submitAnswers();
+    }
+
+    return () => clearInterval(timerRef.current); // Cleanup on unmount
+  }, [timer, gameCode]);
 
   const handleInputChange = (categoryId, value) => {
     answersRef.current[categoryId] = value;
   };
 
   const submitAnswers = async () => {
-    if (submitted) return; // Prevent duplicate submissions
+    if (submitted) return;
     setSubmitted(true);
 
     try {
@@ -61,7 +78,7 @@ function GameScreen() {
         username: playerId,
       });
 
-      socket.emit("voting_ready", gameCode); // Notify other players that the round is ready for voting
+      socket.emit("voting_ready", gameCode);
       navigate(`/voting/${gameCode}`);
     } catch (error) {
       console.error("Error submitting answers:", error);
@@ -81,10 +98,7 @@ function GameScreen() {
           <div key={category.id}>
             <label>
               {category.name}:
-              <input
-                type="text"
-                onChange={(e) => handleInputChange(category.id, e.target.value)}
-              />
+              <input type="text" onChange={(e) => handleInputChange(category.id, e.target.value)} />
             </label>
           </div>
         ))}
