@@ -106,20 +106,20 @@ function VotingScreen() {
           <h2>{categoryName}</h2>
           {answers.map((answer) => (
             <div key={answer.id} style={{ marginLeft: "20px", ...getAnswerStyle(answer.id) }}>
-              <p>
+              <p className="voting-answers">
                 {answer.answerText} ({answer.Player.username})
               </p>
               {gameState.isHost && (
                 <>
-                  <button onClick={() => handleVoteChange(answer.id, true)}>Yes</button>
-                  <button onClick={() => handleVoteChange(answer.id, false)}>No</button>
+                  <button className="vote-yes" onClick={() => handleVoteChange(answer.id, true)}>Accept</button>
+                  <button className="vote-no" onClick={() => handleVoteChange(answer.id, false)}>Reject</button>
                 </>
               )}
             </div>
           ))}
         </div>
       ))}
-      {gameState.isHost && <button onClick={submitVotes}>Submit Votes</button>}
+      {gameState.isHost && <button className="landingButton" onClick={submitVotes}>Submit Votes</button>}
     </div>
   );
 }

@@ -58,6 +58,10 @@ body {
   margin-left: 5px;
 }
 
+.voting-answers {
+  margin-left: 5px;
+}
+
 
 /* ================================
    Headings
@@ -100,6 +104,7 @@ a:focus {
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-bottom: 10px;
+  margin-left: 5px;
 }
 
 .landingButton:hover {
@@ -109,6 +114,48 @@ a:focus {
 .landingButton:active {
   background-color: #006A67;
 }
+
+
+.vote-yes {
+  background-color: #006A67;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.vote-yes:hover {
+  background-color: #818C78;
+}
+
+.vote-yes:active {
+  background-color: #006A67;
+}
+
+.vote-no {
+  background-color: #AE445A;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.vote-no:hover {
+  background-color: #E8BCB9;
+}
+
+.vote-no:active {
+  background-color: #E8BCB9;
+}
+
 
 
 /* ================================
