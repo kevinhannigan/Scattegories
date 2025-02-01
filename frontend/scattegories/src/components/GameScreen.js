@@ -42,7 +42,7 @@ function GameScreen() {
         console.error("Error fetching current round:", error);
       }
     };
-    
+
     fetchCurrentRound();
   }, [gameCode]);
 
@@ -91,17 +91,16 @@ function GameScreen() {
 
   return (
     <div>
-      <h1>Game Screen</h1>
-      <h2>Letter: {letter}</h2>
-      <h2>Round: {gameState.roundNumber}</h2>
-      <h3>Time Remaining: {timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</h3>
+       <h1>Round {gameState.roundNumber}</h1>
+      <h2>Letter: <span className="category-letter">{letter}</span></h2>
+      <h3>Time Remaining: <span className="round-timer">{timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</span></h3>
 
       <form onSubmit={(e) => e.preventDefault()}>
         {categories.map((category) => (
-          <div key={category.id}>
+          <div className="cattegory-list" key={category.id}>
             <label>
-              {category.name}:
-              <input type="text" onChange={(e) => (answersRef.current[category.id] = e.target.value)} />
+              {category.name}: 
+              <input className="cattegory-input" type="text" onChange={(e) => (answersRef.current[category.id] = e.target.value)} />
             </label>
           </div>
         ))}

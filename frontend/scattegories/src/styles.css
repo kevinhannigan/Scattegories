@@ -1,3 +1,171 @@
-.App {
-  text-align: center;
+/* ================================
+   Global Reset & Box Sizing
+================================ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
+
+/* ================================
+   Base Typography & Body Styles
+================================ */
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #121212; /* Dark background */
+  color: #e0e0e0;          /* Light text color */
+}
+
+/* ================================
+   Layout Containers
+================================ */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  gap: 3rem;
+}
+
+.landingPage {
+  margin: 10px;
+
+}
+
+.landingInput {
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.lobby-list {
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.cattegory-list {
+  padding-bottom: 5px;
+}
+
+.cattegory-input {
+  margin-left: 5px;
+}
+
+
+/* ================================
+   Headings
+================================ */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #ffffff; /* Brighter for headings */
+}
+
+/* ================================
+   Paragraphs
+================================ */
+p {
+  margin-bottom: 1rem;
+}
+
+/* ================================
+   Links
+================================ */
+a {
+  color: #BB86FC; /* A purple tint for links */
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+/* ================================
+   Buttons
+================================ */
+.landingButton {
+  background-color: #006A67;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.landingButton:hover {
+  background-color: #818C78;
+}
+
+.landingButton:active {
+  background-color: #006A67;
+}
+
+
+/* ================================
+   Form Elements
+================================ */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222; /* Darker input background */
+  color: #e0e0e0;
+}
+
+.game-code {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222; /* Darker input background */
+  color: #e0e0e0;
+}
+
+.category-letter {
+  font-family: inherit;
+  font-size: 4rem;
+  padding: 1rem 2rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222; /* Darker input background */
+  color: #e0e0e0;
+}
+
+.round-timer {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222; /* Darker input background */
+  color: #e0e0e0;
+}
+
+/* ================================
+   Utility Classes
+================================ */
+/* Spacing utilities */
+.mt-1 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 1rem; }
+.ml-1 { margin-left: 1rem; }
+.mr-1 { margin-right: 1rem; }
+
+/* Text alignment utilities */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }

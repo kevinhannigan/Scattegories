@@ -56,10 +56,11 @@ function LandingPage() {
   };
 
   return (
-    <div>
-      <h1>Scattegories Game</h1>
-      <div>
+    <div className="landingPage">
+      <h1 className="pageHeading">Scattegories Game</h1>
+      <div className="landingInputs">
         <input
+          className="landingInput"
           type="text"
           placeholder="Enter your username"
           value={username}
@@ -67,12 +68,13 @@ function LandingPage() {
         />
       </div>
       <div>
-        <button onClick={createGame} disabled={!username}>
+        <button className="landingButton" onClick={createGame} disabled={!username}>
           Create Game
         </button>
       </div>
       <div>
         <input
+        className="landingInput"
           type="text"
           placeholder="Enter Game Code"
           value={gameCode}
@@ -80,7 +82,7 @@ function LandingPage() {
         />
       </div>
       <div>
-        <button onClick={joinGame} disabled={!username || !gameCode}>
+        <button className="landingButton" onClick={joinGame} disabled={!username || !gameCode}>
           Join Game
         </button>
       </div>
