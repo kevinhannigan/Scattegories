@@ -100,7 +100,6 @@ function VotingScreen() {
   return (
     <div>
       <h1>Voting Screen</h1>
-      <p>({JSON.stringify(gameState)})</p>
       <h2>Round: {gameState.roundNumber}</h2>
       {Object.entries(groupedAnswers).map(([categoryName, answers]) => (
         <div key={categoryName} style={{ marginBottom: "20px" }}>
