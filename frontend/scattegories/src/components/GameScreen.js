@@ -10,7 +10,7 @@ function GameScreen() {
 
   const [categories, setCategories] = useState([]);
   const [letter, setLetters] = useState("H")
-  const [timer, setTimer] = useState(20); // Timer for the round
+  const [timer, setTimer] =  useState(gameState.timer || 120)
   const answersRef = useRef({}); // Store answers without risking stale state
   const [submitted, setSubmitted] = useState(false);
 

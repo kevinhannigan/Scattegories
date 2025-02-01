@@ -7,6 +7,7 @@ function Lobby() {
   const navigate = useNavigate();
   const { gameState, updateGameState, socket, emitEvent } = useGame();
   const [numRounds, setNumRounds] = useState(gameState.numRounds || 5); // Default to 5 rounds
+  const [timer, setTimer] = useState(gameState.timer || 120); // Default to 5 rounds
   const [spicyMode, setSpicyMode] = useState(gameState.spicyMode || false); // Default to non-spicy mode
   const [players, setPlayers] = useState([]);
 
@@ -51,7 +52,7 @@ function Lobby() {
       }
 
       // Update game state and emit event
-      updateGameState({ numRounds, spicyMode });
+      updateGameState({ numRounds, spicyMode, timer });
       emitEvent("game_started", { gameCode });
       navigate(`/game/${gameCode}`); // Navigate to the GameScreen
     } catch (error) {
@@ -81,6 +82,13 @@ function Lobby() {
               onChange={(e) => setNumRounds(parseInt(e.target.value, 10))}
             />
           </label>
+          <label htmlFor="timeSelect">Select Time:</label>
+          <select id="timeSelect" value={timer} onChange={(e) => setTimer(Number(e.target.value))}>
+            <option value={60}>60 seconds</option>
+            <option value={120}>120 seconds</option>
+            <option value={180}>180 seconds</option>
+            <option value={240}>240 seconds</option>
+          </select>
           <label>
             Spicy Mode:
             <input
