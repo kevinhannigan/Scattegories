@@ -74,6 +74,7 @@ function Leaderboard() {
       <h2>
         Round <span className="game-code">{roundNumber}</span> of <span className="game-code">{gameState.numRounds}</span>
       </h2>
+      <div className="leader-table">
       <table>
         <thead>
           <tr>
@@ -92,6 +93,7 @@ function Leaderboard() {
           ))}
         </tbody>
       </table>
+      </div>
       {gameState.isHost && roundNumber < gameState.numRounds && (
         <button className="landingButton" onClick={startNextRound}>Start Next Round</button>
       )}
