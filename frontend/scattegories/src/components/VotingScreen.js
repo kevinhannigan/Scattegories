@@ -98,7 +98,7 @@ function VotingScreen() {
   };
 
   return (
-    <div>
+    <div className="landingPage">
       <h1>Voting Screen</h1>
       <h2>Round: {gameState.roundNumber}</h2>
       {Object.entries(groupedAnswers).map(([categoryName, answers]) => (

@@ -9,7 +9,7 @@ function GameScreen() {
   const navigate = useNavigate();
   const [playerId, setPlayerId] = useState(sessionStorage.getItem("playerId"));
   const [categories, setCategories] = useState([]);
-  const [letter, setLetter] = useState("H");
+  const [letter, setLetter] = useState("");
   const [timer, setTimer] = useState(null); // 🔧 Set as `null` initially to ensure correct updates
   const [isRoundLoaded, setIsRoundLoaded] = useState(false);
   const answersRef = useRef({});
@@ -90,7 +90,7 @@ function GameScreen() {
   };
 
   return (
-    <div>
+    <div className="landingPage">
        <h1>Round {gameState.roundNumber}</h1>
       <h2>Letter: <span className="category-letter">{letter}</span></h2>
       <h3>Time Remaining: <span className="round-timer">{timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</span></h3>

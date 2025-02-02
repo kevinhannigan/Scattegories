@@ -69,7 +69,7 @@ function Leaderboard() {
   };
 
   return (
-    <div>
+    <div className="landingPage">
       <h1>Leaderboard</h1>
       <h2>
         Round <span className="game-code">{roundNumber}</span> of <span className="game-code">{gameState.numRounds}</span>

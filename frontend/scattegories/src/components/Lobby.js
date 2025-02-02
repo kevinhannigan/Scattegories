@@ -13,6 +13,7 @@ function Lobby() {
 
   useEffect(() => {
     // Restore game state from localStorage
+    const playerId = parseInt(sessionStorage.getItem("playerId"), 10);
     const savedGameCode = localStorage.getItem("gameCode");
     if (savedGameCode) {
       updateGameState({ gameCode: savedGameCode });
@@ -77,15 +78,17 @@ function Lobby() {
     <div className="landingPage">
       <h1>Lobby</h1>
       <h2>Game Code: <span className="game-code">{gameCode}</span></h2>
+      <div className="lobby">
       <h2>Players:</h2>
       <ul className="lobby-list">
         {players.map((player) => (
           <li className="player-name" key={player.id}>{player.username}</li>
         ))}
       </ul>
+      </div>
       {gameState.isHost && (
         <div className="game-inputs">
-          <div>
+          <div className="round-select">
           <label>
             Number of Rounds:
             <input
@@ -97,7 +100,7 @@ function Lobby() {
             />
           </label>
           </div>
-          <div>
+          <div className="time-select">
           <label htmlFor="timeSelect">Select Time:</label>
           <select id="timeSelect" value={timer} onChange={handleChange}>
             <option value={10}>10 seconds</option>
@@ -107,7 +110,7 @@ function Lobby() {
             <option value={240}>240 seconds</option>
           </select>
           </div>
-          <div>
+          <div className="spicy-select">
           <label>
             Spicy Mode:
             <input
