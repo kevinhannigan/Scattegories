@@ -52,7 +52,7 @@ function Lobby() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerId, numRounds, spicyMode, timer, gameCode }),
       });
-      console.log("Game Starting with Data: " + JSON.stringify({ playerId, numRounds, spicyMode, timer }))
+      //console.log("Game Starting with Data: " + JSON.stringify({ playerId, numRounds, spicyMode, timer }))
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -72,7 +72,6 @@ function Lobby() {
     const newValue = Number(e.target.value); // Ensure it's a number
     setTimer(newValue);
     updateGameState({ timer: newValue })
-    console.log("Timer: " + newValue)
   };
   return (
     <div className="landingPage">

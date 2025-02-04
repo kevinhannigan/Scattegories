@@ -74,7 +74,7 @@ function LandingPage() {
       </div>
       <div>
         <input
-        className="landingInput"
+          className="landingInput"
           type="text"
           placeholder="Enter Game Code"
           value={gameCode}

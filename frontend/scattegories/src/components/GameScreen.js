@@ -16,7 +16,7 @@ function GameScreen() {
   const [submitted, setSubmitted] = useState(false);
   const timerRef = useRef(null);
 
-  // ✅ Step 1: Fetch Current Round & Set Initial Timer
+
   useEffect(() => {
     const fetchCurrentRound = async () => {
       try {
@@ -34,7 +34,6 @@ function GameScreen() {
         // Ensure `isRoundLoaded` is set BEFORE setting the timer
         setIsRoundLoaded(true);
 
-        // ✅ Separate `setTimer` to ensure it gets updated before countdown starts
         const savedTimer = localStorage.getItem(`gameTimer_${gameCode}`);
         setTimer(savedTimer ? parseInt(savedTimer, 10) : response.data.timer || 60);
 
@@ -91,15 +90,20 @@ function GameScreen() {
 
   return (
     <div className="landingPage">
-       <h1>Round {gameState.roundNumber}</h1>
-      <h2>Letter: <span className="category-letter">{letter}</span></h2>
-      <h3>Time Remaining: <span className="round-timer">{timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</span></h3>
-
+      <div className="round-number">
+        <h1>Round {gameState.roundNumber}</h1>
+      </div>
+      <div className="round-letter">
+        <h2>Letter: <span className="category-letter">{letter}</span></h2>
+      </div>
+      <div className="round-time-remaining">
+        <h3>Time Remaining: <span className="round-timer">{timer !== null ? `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, "0")}` : "Loading..."}</span></h3>
+      </div>
       <form onSubmit={(e) => e.preventDefault()}>
         {categories.map((category) => (
           <div className="cattegory-list" key={category.id}>
             <label>
-              {category.name}: 
+              {category.name}:
               <input className="cattegory-input" type="text" onChange={(e) => (answersRef.current[category.id] = e.target.value)} />
             </label>
           </div>

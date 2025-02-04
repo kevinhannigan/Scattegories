@@ -6,6 +6,18 @@ const sequelize = require("../db");
 
 const router = express.Router();
 
+//helper function
+
+function getRandomLetter() {
+  const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", 
+                   "K", "L", "M", "N", "O", "P", "R", "S", "T", "W"];
+  const randomIndex = Math.floor(Math.random() * letters.length);
+  return letters[randomIndex];
+}
+
+
+
+
 /**
  * Route: POST /create
  * Purpose: Create a new game.
@@ -137,7 +149,7 @@ router.post("/:gameCode/start", async (req, res) => {
 
         if (!existingRound) {
             // Create the first round
-            const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Generate a random letter (A-Z)
+            const randomLetter = getRandomLetter()
             const firstRound = await Round.create({
                 gameId: game.id,
                 roundNumber: 1,

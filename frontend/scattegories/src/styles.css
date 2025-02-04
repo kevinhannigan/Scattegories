@@ -60,6 +60,10 @@ body {
   padding-bottom: 5px;
 }
 
+.cattegory-letter {
+  margin-bottom: 10px;
+}
+
 .cattegory-input {
   margin-left: 5px;
 }
@@ -74,6 +78,19 @@ body {
 }
 
 .round-select {
+  padding: 10px;
+}
+
+.round-number {
+  padding: 10px;
+}
+
+.round-time-remaining {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.round-letter {
   padding: 10px;
 }
 
