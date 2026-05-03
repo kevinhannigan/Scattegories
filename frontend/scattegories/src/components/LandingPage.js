@@ -6,83 +6,121 @@ import { useGame } from "../context/GameContext";
 function LandingPage() {
   const [username, setUsername] = useState("");
   const [gameCode, setGameCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { updateGameState, emitEvent } = useGame(); // Leverage GameContext
+  const { updateGameState, emitEvent, serverUrl } = useGame();
 
   const createGame = async () => {
+    if (loading) return;
+    setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/game/create", { username });
-      const { gameCode, playerId } = response.data;
+      const response = await axios.post(`${serverUrl}/api/game/create`, { username });
+      const { gameCode: newGameCode, playerId } = response.data;
 
-      updateGameState({ gameCode, isHost: true, roundNumber: 1 });
+      updateGameState({ gameCode: newGameCode, isHost: true, roundNumber: 1 });
+      emitEvent("join_lobby", newGameCode);
 
-      emitEvent("join_lobby", gameCode);
-
-      // Store playerId and gameCode persistently
       sessionStorage.setItem("playerId", playerId);
-      localStorage.setItem("gameCode", gameCode);
+      localStorage.setItem("gameCode", newGameCode);
 
-      navigate(`/lobby/${gameCode}`);
+      navigate(`/lobby/${newGameCode}`);
     } catch (error) {
       console.error("Error creating game:", error);
       alert("Failed to create the game. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const joinGame = async () => {
+    if (loading) return;
+    setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/game/join", { username, gameCode });
+      const response = await axios.post(`${serverUrl}/api/game/join`, {
+        username,
+        gameCode: gameCode.toUpperCase(),
+      });
       const { playerId } = response.data;
 
-      if (!playerId || isNaN(playerId)) {
-        console.error("Invalid playerId received:", playerId);
+      if (!playerId) {
         alert("Failed to join the game. Please try again.");
+        setLoading(false);
         return;
       }
 
-      updateGameState({ gameCode, isHost: false });
+      const normalizedCode = gameCode.toUpperCase();
+      updateGameState({ gameCode: normalizedCode, isHost: false });
+      emitEvent("join_lobby", normalizedCode);
 
-      emitEvent("join_lobby", gameCode);
-
-      // Store playerId and gameCode persistently
       sessionStorage.setItem("playerId", playerId);
-      localStorage.setItem("gameCode", gameCode);
+      localStorage.setItem("gameCode", normalizedCode);
 
-      navigate(`/lobby/${gameCode}`);
+      navigate(`/lobby/${normalizedCode}`);
     } catch (error) {
       console.error("Error joining game:", error);
       alert("Failed to join the game. Please check the game code and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleKeyDown = (e, action) => {
+    if (e.key === "Enter") action();
+  };
+
   return (
-    <div className="landingPage">
-      <h1 className="pageHeading">Scattegories Game</h1>
-      <div className="landingInputs">
-        <input
-          className="landingInput"
-          type="text"
-          placeholder="Enter your username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div>
-        <button className="landingButton" onClick={createGame} disabled={!username}>
+    <div className="page">
+      <div className="card stack--lg">
+        <div className="center gap-sm">
+          <h1 className="title title--accent">Scattegories</h1>
+          <p className="subtitle">The fast-thinking word game</p>
+        </div>
+
+        <div className="input-group">
+          <label className="input-label" htmlFor="username">Your Name</label>
+          <input
+            id="username"
+            className="input"
+            type="text"
+            placeholder="Enter your name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, createGame)}
+            autoComplete="off"
+            autoFocus
+          />
+        </div>
+
+        <button
+          className="btn btn--primary btn--full"
+          onClick={createGame}
+          disabled={!username || loading}
+        >
           Create Game
         </button>
-      </div>
-      <div>
-        <input
-          className="landingInput"
-          type="text"
-          placeholder="Enter Game Code"
-          value={gameCode}
-          onChange={(e) => setGameCode(e.target.value)}
-        />
-      </div>
-      <div>
-        <button className="landingButton" onClick={joinGame} disabled={!username || !gameCode}>
+
+        <div className="divider">or join a game</div>
+
+        <div className="input-group">
+          <label className="input-label" htmlFor="gameCode">Game Code</label>
+          <input
+            id="gameCode"
+            className="input input--mono"
+            type="text"
+            placeholder="ABC123"
+            value={gameCode}
+            onChange={(e) => setGameCode(e.target.value.toUpperCase())}
+            onKeyDown={(e) => handleKeyDown(e, joinGame)}
+            maxLength={6}
+            autoComplete="off"
+          />
+        </div>
+
+        <button
+          className="btn btn--secondary btn--full"
+          onClick={joinGame}
+          disabled={!username || !gameCode || loading}
+        >
           Join Game
         </button>
       </div>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 
 export const GameContext = createContext();
@@ -11,71 +11,88 @@ export const useGame = () => {
   return context;
 };
 
+const SERVER_URL = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
+
 export const GameProvider = ({ children }) => {
   const [gameState, setGameState] = useState(() => {
-    // Load from storage if available
     const savedState = localStorage.getItem("gameState");
     return savedState
       ? JSON.parse(savedState)
       : {
-        gameCode: null,
-        roundNumber: 1,
-        numRounds: 5,
-        spicyMode: false,
-        isHost: false,
-        timer: 10,
-      };
+          gameCode: null,
+          roundNumber: 1,
+          numRounds: 5,
+          spicyMode: false,
+          isHost: false,
+          timer: 60,
+        };
   });
 
   const socketRef = useRef(null);
+  const [socketReady, setSocketReady] = useState(false);
 
   useEffect(() => {
-    // Save game state in localStorage whenever it changes
     localStorage.setItem("gameState", JSON.stringify(gameState));
   }, [gameState]);
 
   useEffect(() => {
-    if (!socketRef.current) {
-      const socket = io("http://localhost:5000", { transports: ["websocket"] });
-      socketRef.current = socket;
+    const socket = io(SERVER_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+    });
+    socketRef.current = socket;
 
-      socket.on("player_joined", ({ gameCode }) => {
-        console.log(`Player joined lobby for game: ${gameCode}`);
-      });
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+      setSocketReady(true);
 
-      socket.on("vote_updated", (votes) => {
-        console.log("Votes updated:", votes);
-      });
+      // Rejoin game room on reconnection
+      const savedState = localStorage.getItem("gameState");
+      if (savedState) {
+        const { gameCode } = JSON.parse(savedState);
+        if (gameCode) {
+          socket.emit("join_game", gameCode);
+        }
+      }
+    });
 
-      socket.on("move_to_leaderboard", () => {
-        console.log("Moving to leaderboard...");
-      });
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      setSocketReady(false);
+    });
 
-      socket.on("next_round", () => {
-        console.log("Starting next round...");
-      });
-
-      return () => socket.disconnect();
-    }
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
   }, []);
 
-  const updateGameState = (updates) => {
+  const updateGameState = useCallback((updates) => {
     setGameState((prevState) => {
       const newState = { ...prevState, ...updates };
       localStorage.setItem("gameState", JSON.stringify(newState));
       return newState;
     });
-  };
+  }, []);
 
-  const emitEvent = (event, payload) => {
+  const emitEvent = useCallback((event, payload) => {
     if (socketRef.current) {
       socketRef.current.emit(event, payload);
     }
-  };
+  }, []);
 
   return (
     <GameContext.Provider
-      value={{ gameState, updateGameState, emitEvent, socket: socketRef.current }}
+      value={{
+        gameState,
+        updateGameState,
+        emitEvent,
+        socket: socketRef.current,
+        socketReady,
+        serverUrl: SERVER_URL,
+      }}
     >
       {children}
     </GameContext.Provider>

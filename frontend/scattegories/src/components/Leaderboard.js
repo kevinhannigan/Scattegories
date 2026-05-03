@@ -6,99 +6,116 @@ import { useGame } from "../context/GameContext";
 function Leaderboard() {
   const { gameCode } = useParams();
   const navigate = useNavigate();
-  const { gameState, updateGameState, socket } = useGame();
-  const [roundNumber, setRoundNumber] = useState(gameState.roundNumber || 1); // Default to 5 rounds
+  const { gameState, updateGameState, socket, serverUrl } = useGame();
   const [players, setPlayers] = useState([]);
+  const [starting, setStarting] = useState(false);
+  const isGameOver = gameState.roundNumber >= gameState.numRounds;
 
   useEffect(() => {
-    // Join the game room
+    if (!socket) return;
+
     socket.emit("join_game", gameCode);
 
-    // Listen for "next_round_started" to transition all players to the game screen
-    socket.on("next_round_started", ({ roundNumber, letter, categories }) => {
-      // Update the global state with the new round data
+    socket.on("next_round_started", ({ roundNumber }) => {
       updateGameState({ roundNumber });
-
-      // Navigate to the GameScreen with the new round data
-      navigate(`/game/${gameCode}`, { state: { roundNumber, letter, categories } });
+      navigate(`/game/${gameCode}`);
     });
 
-    // Fetch leaderboard and game details
+    socket.on("game_over", () => {
+      updateGameState({ roundNumber: gameState.numRounds });
+    });
+
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/game/${gameCode}/leaderboard`);
+        const response = await axios.get(
+          `${serverUrl}/api/game/${gameCode}/leaderboard`
+        );
         setPlayers(response.data.players);
-
-        // Update game state from backend data
-        updateGameState({
-          roundNumber: response.data.roundNumber || 1, // Default to round 1 if not found
-          //numRounds: response.data.numRounds,
-        });
       } catch (error) {
-        console.error("Error fetching leaderboard or game details:", error);
+        console.error("Error fetching leaderboard:", error);
       }
     };
 
     fetchLeaderboard();
 
     return () => {
-      socket.off("next_round_started"); // Clean up socket event listener on unmount
+      socket.off("next_round_started");
+      socket.off("game_over");
     };
-  }, [gameCode, navigate, socket, updateGameState]);
+  }, [gameCode, socket, navigate, serverUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startNextRound = async () => {
+    if (starting) return;
+    setStarting(true);
     try {
-      const playerId = parseInt(sessionStorage.getItem("playerId"));
-      console.log('Host starting next round: ' + playerId)
-      const response = await axios.post(`http://localhost:5000/api/game/${gameCode}/start-next-round`, {
-        playerId: playerId
+      const playerId = sessionStorage.getItem("playerId");
+      await axios.post(`${serverUrl}/api/game/${gameCode}/start-next-round`, {
+        playerId,
       });
-
-      console.log("Response from starting new round: " + JSON.stringify(response))
-
-      updateGameState({
-        roundNumber: response.data.roundNumber,
-      });
-
-      // Emit the "next_round_started" event (response from backend includes the round details)
-      const { roundNumber, letter, categories } = response.data.round;
-      socket.emit("next_round_started", { gameCode, roundNumber, letter, categories });
     } catch (error) {
       console.error("Error starting next round:", error);
+      setStarting(false);
     }
   };
 
+  const playAgain = () => {
+    localStorage.removeItem("gameState");
+    localStorage.removeItem("gameCode");
+    sessionStorage.removeItem("playerId");
+    navigate("/");
+  };
+
   return (
-    <div className="landingPage">
-      <h1>Leaderboard</h1>
-      <h2>
-        Round <span className="game-code">{roundNumber}</span> of <span className="game-code">{gameState.numRounds}</span>
-      </h2>
-      <div className="leader-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {players.map((player, index) => (
-            <tr key={player.id}>
-              <td>{index + 1}</td>
-              <td>{player.username}</td>
-              <td>{player.score}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="page">
+      <div className="center gap-sm" style={{ marginBottom: "2rem" }}>
+        <h1 className="title" style={{ fontSize: "1.5rem" }}>
+          {isGameOver ? "Final Standings" : "Leaderboard"}
+        </h1>
+        <p className="subtitle">
+          Round {gameState.roundNumber} of {gameState.numRounds}
+        </p>
       </div>
-      {gameState.isHost && roundNumber < gameState.numRounds && (
-        <button className="landingButton" onClick={startNextRound}>Start Next Round</button>
-      )}
-      {roundNumber >= gameState.numRounds && (
-        <p>Game Over! Thanks for playing!</p>
+
+      <div className="leaderboard">
+        {players.map((player, index) => (
+          <div
+            className="leaderboard-row"
+            key={player.id}
+            style={{ animationDelay: `${index * 80}ms` }}
+          >
+            <span className="leaderboard-rank">{index + 1}</span>
+            <span className="leaderboard-name">{player.username}</span>
+            <span className="leaderboard-score">{player.score}</span>
+          </div>
+        ))}
+      </div>
+
+      {isGameOver ? (
+        <div className="game-over">
+          <p className="game-over__title">Game Over</p>
+          <p className="game-over__sub">Thanks for playing!</p>
+          <button className="btn btn--primary" onClick={playAgain}>
+            Play Again
+          </button>
+        </div>
+      ) : (
+        <>
+          {gameState.isHost ? (
+            <button
+              className="btn btn--primary"
+              onClick={startNextRound}
+              disabled={starting}
+              style={{ marginTop: "1.5rem" }}
+            >
+              {starting ? "Starting…" : "Next Round"}
+            </button>
+          ) : (
+            <div className="status" style={{ marginTop: "1.5rem" }}>
+              <span className="status-dot" />
+              Waiting for host
+            </div>
+          )}
+        </>
       )}
     </div>
   );

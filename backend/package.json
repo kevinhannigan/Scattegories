@@ -1,17 +1,16 @@
 {
-  "name": "backend",
+  "name": "scattegories-backend",
   "version": "1.0.0",
-  "main": "db.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "description": "",
   "dependencies": {
-    "socket.io": "^4.8.1"
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.0",
+    "openai": "^6.35.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
   }
 }
